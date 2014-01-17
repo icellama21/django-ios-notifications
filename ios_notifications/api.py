@@ -65,15 +65,27 @@ class DeviceResource(BaseResource):
             token = re.sub('<|>|\s', '', token)
         devices = Device.objects.filter(token=token,
                                         service__id=int(request.POST.get('service', 0)))
+        
+        if request.is_authenticated():                               
+            user = request.user
+        else:
+            user = None
+            
         if devices.exists():
             device = devices.get()
             device.is_active = True
+            
+            if user:
+                device.users.add(user)
             device.save()
             return JSONResponse(device)
         form = DeviceForm(request.POST)
         if form.is_valid():
             device = form.save(commit=False)
             device.is_active = True
+            
+            if user:
+                device.users.add(user)
             device.save()
             return JSONResponse(device, status=201)
         return JSONResponse(form.errors, status=400)
