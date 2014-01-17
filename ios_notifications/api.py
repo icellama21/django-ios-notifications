@@ -66,7 +66,7 @@ class DeviceResource(BaseResource):
         devices = Device.objects.filter(token=token,
                                         service__id=int(request.POST.get('service', 0)))
         
-        if request.is_authenticated():                               
+        if request.user.is_authenticated():                               
             user = request.user
         else:
             user = None
